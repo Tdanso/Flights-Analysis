@@ -8,7 +8,7 @@ conn = psycopg2.connect(**params)
 
 
 cursor = conn.cursor()
-cursor.execute("SELECT * FROM real_flight WHERE '0'= cancelled and '0'= diverted; ")
+cursor.execute("SELECT * FROM real_flight WHERE False = cancelled and False = diverted; ")
 rows = cursor.fetchall()
 
 cursor.close()
@@ -19,10 +19,14 @@ df = pd.DataFrame(rows, columns=[desc.name for desc in cursor.description])
 #check for null values 
 print(df.isna().sum())
 
-df["delayed"] = np.where(((df["arr_de115"] == '1') | (df["dep_de115"] == '1')), 1, 0)
+print(df.head())
+
+df["delayed"] = np.where(((df["arr_del15"] == True) | (df["dep_del15"] == True)), 1, 0)
 
 # group by airline and compute the average rationof delays 
-grouped_airline = df.groupby("op_unique_carrier")["delayed"].mean()
+grouped_airline = df.groupby("op_unique_carrier")["delayed"].mean() 
+
+print(grouped_airline)
 
 # df is sorted by delays
 sorted_airline = grouped_airline.sort_values()
